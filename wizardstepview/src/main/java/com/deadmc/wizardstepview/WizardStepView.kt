@@ -180,11 +180,13 @@ open class WizardStepView : View {
     }
 
     fun drawLineProgress(canvas: Canvas?, i: Int, progress:Float) {
+        linePaint.color = activeColor
         var startX = screenPart * 2f * (i - 2) + screenPart + cirleRadius * 0.95f
         var predictionStopX = (screenPart * 2f * (i - 1) + screenPart + cirleRadius)*progress
         var animation = (predictionStopX - startX)*progress
         var stopX = startX+animation
         canvas?.drawLine(startX, elementHeight.toFloat(), stopX, elementHeight.toFloat(), linePaint)
+        Log.e(TAG,"Progress $progress")
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
