@@ -5,7 +5,8 @@
         <attr name="labelPosition" format="integer"/>
         <attr name="activeColor" format="color"/>
         <attr name="inactiveColor" format="color"/>
-        <attr name="textColor" format="color"/>
+        <attr name="textActiveColor" format="color"/>
+        <attr name="textInactiveColor" format="color"/>
         <attr name="cirleRadius" format="dimension" />
         <attr name="lineHeight" format="dimension" />
     </declare-styleable>
