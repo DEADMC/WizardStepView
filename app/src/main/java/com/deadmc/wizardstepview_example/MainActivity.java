@@ -24,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     private void init() {
         viewPager = findViewById(R.id.viewPager);
         wizardStepView = findViewById(R.id.wizardStepView);
+        viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager()));
+        wizardStepView.setViewPager(viewPager);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
@@ -32,12 +34,13 @@ public class MainActivity extends AppCompatActivity {
         }
         @Override
         public Fragment getItem(int position) {
-            return null;
+            return TestFragment.newInstance(position);
         }
 
         @Override
         public int getCount() {
-            return 0;
+            return 3;
         }
     }
+
 }

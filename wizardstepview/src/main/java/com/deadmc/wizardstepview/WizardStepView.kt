@@ -10,6 +10,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.support.v4.content.ContextCompat
+import android.support.v4.view.ViewPager
 import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.util.Log
@@ -55,6 +56,12 @@ open class WizardStepView : View {
     private var animationProgressForward = 0f
     private var animationProgressBackward = 1f
     private var animationSpeed = 0.05f
+    //ViewPager integration
+    var viewPager: ViewPager? = null
+        set(value) {
+            field = value
+            initViewPager()
+        }
 
 
     constructor(ctx: Context) : super(ctx) {
@@ -78,6 +85,18 @@ open class WizardStepView : View {
     fun setCurrentPosition(position: Int) {
         newStep = position
         invalidate()
+    }
+
+    fun initViewPager() {
+        val pageListener = object:ViewPager.OnPageChangeListener {
+            override fun onPageScrollStateChanged(state:Int) {}
+            override fun onPageScrolled(position:Int, positionOffset:Float, positionOffsetPixels:Int) {}
+
+            override fun onPageSelected(position:Int) {
+                setCurrentPosition(position+1)
+            }
+        }
+        viewPager?.addOnPageChangeListener(pageListener)
     }
 
 
@@ -196,17 +215,17 @@ open class WizardStepView : View {
     }
 
     protected fun drawLine(canvas: Canvas?, i: Int) {
-        var startX = screenPart * 2f * (i - 2) + screenPart + cirleRadius * 0.95f
-        var stopX = screenPart * 2f * (i - 1) + screenPart + cirleRadius *0.95f
+        val startX = screenPart * 2f * (i - 2) + screenPart + cirleRadius * 0.95f
+        val stopX = screenPart * 2f * (i - 1) + screenPart + cirleRadius *0.95f
         canvas?.drawLine(startX, elementHeight.toFloat(), stopX, elementHeight.toFloat(), linePaint)
     }
 
     protected fun drawLineProgress(canvas: Canvas?, i: Int, progress: Float) {
         linePaint.color = activeColor
-        var startX = screenPart * 2f * (i - 2) + screenPart + cirleRadius * 0.95f
-        var predictionStopX = (screenPart * 2f * (i - 1) + screenPart + cirleRadius) * progress
-        var animation = (predictionStopX - startX) * progress
-        var stopX = startX + animation
+        val startX = screenPart * 2f * (i - 2) + screenPart + cirleRadius * 0.95f
+        val predictionStopX = (screenPart * 2f * (i - 1) + screenPart + cirleRadius) * progress
+        val animation = (predictionStopX - startX) * progress
+        val stopX = startX + animation
         canvas?.drawLine(startX, elementHeight.toFloat(), stopX, elementHeight.toFloat(), linePaint)
     }
 
@@ -242,6 +261,7 @@ open class WizardStepView : View {
         }
         if (clickListener == null) {
             setCurrentPosition(position)
+            viewPager?.setCurrentItem(position-1, true)
         } else {
             clickListener?.click(position)
         }
