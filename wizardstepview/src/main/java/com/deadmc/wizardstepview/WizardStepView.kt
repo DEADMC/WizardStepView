@@ -22,6 +22,12 @@ open class WizardStepView : View {
 
     //public
     var clickListener:WizardClickListener? = null
+    //ViewPager integration
+    var viewPager: ViewPager? = null
+        set(value) {
+            field = value
+            initViewPager()
+        }
 
     //base
     private val TAG = this.javaClass.simpleName
@@ -44,7 +50,6 @@ open class WizardStepView : View {
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     //sizes
     private var elementHeight = 0 //center Y of element
-    private var elementWidth = 0 //whole width of element
     private var cirleRadius = 0 //radius of step cirles
     private var lineHeight = 0 //heigth of line between cirles
     private var screenPart = 0  //part of screen to center views
@@ -56,12 +61,7 @@ open class WizardStepView : View {
     private var animationProgressForward = 0f
     private var animationProgressBackward = 1f
     private var animationSpeed = 0.05f
-    //ViewPager integration
-    var viewPager: ViewPager? = null
-        set(value) {
-            field = value
-            initViewPager()
-        }
+
 
 
     constructor(ctx: Context) : super(ctx) {
@@ -84,6 +84,7 @@ open class WizardStepView : View {
 
     fun setCurrentPosition(position: Int) {
         newStep = position
+        animationSpeed = 0.05f*Math.abs(currentStep-newStep)
         invalidate()
     }
 
@@ -104,7 +105,6 @@ open class WizardStepView : View {
 
 
     protected fun init() {
-        Log.e(TAG, "init started")
         linePaint.strokeWidth = cirleRadius * 0.5f
         isClickable = true
         textPaint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
@@ -160,7 +160,7 @@ open class WizardStepView : View {
         for (i in 1..stepsCount) {
             cirlePaint.color = inactiveColor
             textPaint.color = textInactiveColor
-            if ((currentStep <= newStep && i <= currentStep) || (currentStep > newStep && i <= currentStep-1)) {
+            if ((currentStep in i..newStep) || (currentStep > newStep && i <= currentStep-1)) {
                 cirlePaint.color = activeColor
                 textPaint.color = textActiveColor
             }
@@ -171,10 +171,10 @@ open class WizardStepView : View {
 
     protected fun drawCirle(canvas: Canvas?, i: Int) {
         textPaint.textSize = cirleRadius.toFloat()
-        var offset = screenPart * 2f * (i - 1) + screenPart
+        val offset = screenPart * 2f * (i - 1) + screenPart
         canvas?.drawCircle(offset, elementHeight.toFloat(), cirleRadius.toFloat(), cirlePaint)
         val textY = elementHeight.toFloat()+(textPaint.descent()-textPaint.ascent())/4
-        var textX = offset+(textPaint.descent()+textPaint.ascent())*0.4f
+        val textX = offset+(textPaint.descent()+textPaint.ascent())*0.4f
         canvas?.drawText(i.toString(),textX,textY,textPaint)
     }
 
@@ -192,7 +192,7 @@ open class WizardStepView : View {
 
                 drawLineProgress(canvas, currentStep + 1, animationProgressForward)
                 animationProgressForward += animationSpeed
-                if (animationProgressForward > 1.0f) {
+                if (animationProgressForward > 1.05f) {
                     currentStep++
                     animationProgressForward = 0f
                 }
@@ -246,9 +246,14 @@ open class WizardStepView : View {
         when (event?.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 solveClick(event.x)
+                performClick()
             }
         }
         return true
+    }
+
+    override fun performClick(): Boolean {
+        return super.performClick()
     }
 
     protected fun solveClick(x: Float) {
