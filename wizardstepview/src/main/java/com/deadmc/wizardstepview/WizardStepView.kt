@@ -22,6 +22,7 @@ open class WizardStepView : View {
 
     //public
     var clickListener:WizardClickListener? = null
+    var stepsCount = 3
     //ViewPager integration
     var viewPager: ViewPager? = null
         set(value) {
@@ -54,7 +55,6 @@ open class WizardStepView : View {
     private var lineHeight = 0 //heigth of line between cirles
     private var screenPart = 0  //part of screen to center views
     //current state
-    private var stepsCount = 3
     private var currentStep = 1
     private var newStep = 1
     //animation
@@ -121,9 +121,9 @@ open class WizardStepView : View {
         try {
             //colors
             activeColor = attr.getColor(R.styleable.WizardStepView_activeColor, ContextCompat.getColor(context, DEFAULT_ACTIVE_COLOR))
-            inactiveColor = attr.getColor(R.styleable.WizardStepView_activeColor, ContextCompat.getColor(context, DEFAULT_INACTIVE_COLOR))
-            textActiveColor = attr.getColor(R.styleable.WizardStepView_activeColor, ContextCompat.getColor(context, DEFAULT_TEXT_COLOR))
-            textInactiveColor = attr.getColor(R.styleable.WizardStepView_inactiveColor, ContextCompat.getColor(context, DEFAULT_TEXT_COLOR))
+            inactiveColor = attr.getColor(R.styleable.WizardStepView_inactiveColor, ContextCompat.getColor(context, DEFAULT_INACTIVE_COLOR))
+            textActiveColor = attr.getColor(R.styleable.WizardStepView_textActiveColor, ContextCompat.getColor(context, DEFAULT_TEXT_COLOR))
+            textInactiveColor = attr.getColor(R.styleable.WizardStepView_textInactiveColor, ContextCompat.getColor(context, DEFAULT_TEXT_COLOR))
             //sizes
             cirleRadius = attr.getDimension(R.styleable.WizardStepView_cirleRadius, dp2px(DEFAULT_STEP_CIRCLE_RADIUS)).toInt()
             lineHeight = attr.getDimension(R.styleable.WizardStepView_lineHeight, dp2px(DEFAULT_STEP_LINE_HEIGHT)).toInt()
@@ -139,6 +139,8 @@ open class WizardStepView : View {
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
+        if (screenPart == 0)
+            screenPart = width / (2 * stepsCount)
         drawLines(canvas)
         drawCircle(canvas)
     }
@@ -163,6 +165,7 @@ open class WizardStepView : View {
             if ((currentStep in i..newStep) || (currentStep > newStep && i <= currentStep-1)) {
                 cirlePaint.color = activeColor
                 textPaint.color = textActiveColor
+                Log.e(TAG,"setActiveColor for $i")
             }
 
             drawCirle(canvas, i)
@@ -172,6 +175,7 @@ open class WizardStepView : View {
     protected fun drawCirle(canvas: Canvas?, i: Int) {
         textPaint.textSize = cirleRadius.toFloat()
         val offset = screenPart * 2f * (i - 1) + screenPart
+        Log.e(TAG,"offset = $offset , screenPart = $screenPart")
         canvas?.drawCircle(offset, elementHeight.toFloat(), cirleRadius.toFloat(), cirlePaint)
         val textY = elementHeight.toFloat()+(textPaint.descent()-textPaint.ascent())/4
         val textX = offset+(textPaint.descent()+textPaint.ascent())*0.4f
