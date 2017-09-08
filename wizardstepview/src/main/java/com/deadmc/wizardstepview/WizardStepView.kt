@@ -18,6 +18,8 @@ import android.view.MotionEvent
 import android.view.View
 
 
+
+
 open class WizardStepView : View {
 
     //public
@@ -63,6 +65,8 @@ open class WizardStepView : View {
     private var animationProgressForward = 0f
     private var animationProgressBackward = 1f
     private var animationSpeed = 0.05f
+    //check image
+    private var showCheckImage = true
 
 
     constructor(ctx: Context) : super(ctx) {
@@ -195,9 +199,37 @@ open class WizardStepView : View {
         val offset = screenPart * 2f * (i - 1) + screenPart
         //Log.e(TAG,"offset = $offset , screenPart = $screenPart")
         canvas?.drawCircle(offset, elementHeight.toFloat(), cirleRadius.toFloat(), cirlePaint)
-        val textY = elementHeight.toFloat() + (textPaint.descent() - textPaint.ascent()) / 4
-        val textX = offset + (textPaint.descent() + textPaint.ascent()) * 0.4f
-        canvas?.drawText(i.toString(), textX, textY, textPaint)
+        if (showCheckImage && currentStep > i) {
+            drawImage(offset,canvas)
+        } else {
+            val textY = elementHeight.toFloat() + (textPaint.descent() - textPaint.ascent()) / 4
+            val textX = offset + (textPaint.descent() + textPaint.ascent()) * 0.4f
+            canvas?.drawText(i.toString(), textX, textY, textPaint)
+        }
+
+    }
+
+    protected fun drawImage(offset:Float, canvas:Canvas?) {
+        val d = ContextCompat.getDrawable(context,R.drawable.check)
+        var ratio = d.intrinsicHeight/d.intrinsicWidth.toFloat()
+        var widthModifier = cirleRadius*0.5
+        var heightModifier = cirleRadius*0.5*ratio
+        if (d.intrinsicHeight > d.intrinsicWidth) {
+            ratio = d.intrinsicWidth/d.intrinsicHeight.toFloat()
+            widthModifier = cirleRadius*0.5*ratio
+            heightModifier = cirleRadius*0.5
+        }
+
+        Log.e(TAG,"ratio $ratio")
+
+        val imgLeft = offset-widthModifier
+        val imgRight = offset+widthModifier
+        val imgTop = elementHeight.toFloat()-heightModifier
+        val imgBottom = elementHeight.toFloat()+heightModifier
+        Log.e(TAG, "drawable x"+d.intrinsicWidth+" y "+d.intrinsicHeight)
+
+        d.setBounds(imgLeft.toInt(), imgTop.toInt(), imgRight.toInt(), imgBottom.toInt())
+        d.draw(canvas)
     }
 
     protected fun drawLines(canvas: Canvas?) {
