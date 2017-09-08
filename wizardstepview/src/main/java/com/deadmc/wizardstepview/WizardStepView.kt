@@ -34,6 +34,7 @@ open class WizardStepView : View {
     var viewPagerState = 0
     var viewPagerAnimation = 0f
     var viewPagerPosition = 0
+    var startedTransition = false
     //base
     private val TAG = this.javaClass.simpleName
     private val ctx: Context
@@ -101,24 +102,27 @@ open class WizardStepView : View {
             }
 
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-                Log.e(TAG, "positionOffset $positionOffset")
+
                 viewPagerAnimation = positionOffset
                 viewPagerPosition = position + 1
 
                 if (viewPagerState == 1) {
                     if (viewPagerPosition < currentStep) {
                         currentStep = viewPagerPosition
-                        newStep = currentStep
-
+                        newStep = viewPagerPosition
+                        startedTransition = true
                     }
                 }
+
 
                 invalidate()
             }
 
             override fun onPageSelected(position: Int) {
+                Log.e(TAG, "onPageSelected $position")
                 currentStep = position + 1
                 newStep = currentStep
+                startedTransition = false
                 invalidate()
                 //Log.e(TAG,"page selected $currentStep")
                 //setCurrentPosition(position + 1)
@@ -219,15 +223,10 @@ open class WizardStepView : View {
             widthModifier = cirleRadius*0.5*ratio
             heightModifier = cirleRadius*0.5
         }
-
-        Log.e(TAG,"ratio $ratio")
-
         val imgLeft = offset-widthModifier
         val imgRight = offset+widthModifier
         val imgTop = elementHeight.toFloat()-heightModifier
         val imgBottom = elementHeight.toFloat()+heightModifier
-        Log.e(TAG, "drawable x"+d.intrinsicWidth+" y "+d.intrinsicHeight)
-
         d.setBounds(imgLeft.toInt(), imgTop.toInt(), imgRight.toInt(), imgBottom.toInt())
         d.draw(canvas)
     }
