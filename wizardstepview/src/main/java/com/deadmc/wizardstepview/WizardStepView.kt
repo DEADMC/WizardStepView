@@ -21,7 +21,7 @@ import android.view.View
 open class WizardStepView : View {
 
     //public
-    var clickListener:WizardClickListener? = null
+    var clickListener: WizardClickListener? = null
     var stepsCount = 3
     //ViewPager integration
     var viewPager: ViewPager? = null
@@ -29,7 +29,9 @@ open class WizardStepView : View {
             field = value
             initViewPager()
         }
-
+    var viewPagerState = 0
+    var viewPagerAnimation = 0f
+    var viewPagerPosition = 0
     //base
     private val TAG = this.javaClass.simpleName
     private val ctx: Context
@@ -63,7 +65,6 @@ open class WizardStepView : View {
     private var animationSpeed = 0.05f
 
 
-
     constructor(ctx: Context) : super(ctx) {
         this.ctx = ctx
         init()
@@ -84,25 +85,43 @@ open class WizardStepView : View {
 
     fun setCurrentPosition(position: Int) {
         newStep = position
-        animationSpeed = 0.05f*Math.abs(currentStep-newStep)
+        animationSpeed = 0.05f * Math.abs(currentStep - newStep)
         invalidate()
     }
 
-    fun initViewPager() {
-        val pageListener = object:ViewPager.OnPageChangeListener {
-            override fun onPageScrollStateChanged(state:Int) {}
-            override fun onPageScrolled(position:Int, positionOffset:Float, positionOffsetPixels:Int) {}
+    private fun initViewPager() {
+        val pageListener = object : ViewPager.OnPageChangeListener {
+            override fun onPageScrollStateChanged(state: Int) {
+                viewPagerState = state
+                invalidate()
+            }
 
-            override fun onPageSelected(position:Int) {
-                setCurrentPosition(position+1)
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+                Log.e(TAG, "positionOffset $positionOffset")
+                viewPagerAnimation = positionOffset
+                viewPagerPosition = position + 1
+
+                if (viewPagerState == 1) {
+                    if (viewPagerPosition < currentStep) {
+                        currentStep = viewPagerPosition
+                        newStep = currentStep
+
+                    }
+                }
+
+                invalidate()
+            }
+
+            override fun onPageSelected(position: Int) {
+                currentStep = position + 1
+                newStep = currentStep
+                invalidate()
+                //Log.e(TAG,"page selected $currentStep")
+                //setCurrentPosition(position + 1)
             }
         }
         viewPager?.addOnPageChangeListener(pageListener)
     }
-
-
-
-
 
     protected fun init() {
         linePaint.strokeWidth = cirleRadius * 0.5f
@@ -132,7 +151,7 @@ open class WizardStepView : View {
         }
     }
 
-    protected fun dp2px(dp: Float): Float {
+    private fun dp2px(dp: Float): Float {
         val displayMetrics = context.resources.displayMetrics
         return Math.round(dp * (displayMetrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT)).toFloat()
     }
@@ -162,10 +181,9 @@ open class WizardStepView : View {
         for (i in 1..stepsCount) {
             cirlePaint.color = inactiveColor
             textPaint.color = textInactiveColor
-            if ((currentStep in i..newStep) || (currentStep > newStep && i <= currentStep-1)) {
+            if ((currentStep in i..newStep) || (currentStep > newStep && i <= currentStep - 1)) {
                 cirlePaint.color = activeColor
                 textPaint.color = textActiveColor
-                Log.e(TAG,"setActiveColor for $i")
             }
 
             drawCirle(canvas, i)
@@ -175,43 +193,48 @@ open class WizardStepView : View {
     protected fun drawCirle(canvas: Canvas?, i: Int) {
         textPaint.textSize = cirleRadius.toFloat()
         val offset = screenPart * 2f * (i - 1) + screenPart
-        Log.e(TAG,"offset = $offset , screenPart = $screenPart")
+        //Log.e(TAG,"offset = $offset , screenPart = $screenPart")
         canvas?.drawCircle(offset, elementHeight.toFloat(), cirleRadius.toFloat(), cirlePaint)
-        val textY = elementHeight.toFloat()+(textPaint.descent()-textPaint.ascent())/4
-        val textX = offset+(textPaint.descent()+textPaint.ascent())*0.4f
-        canvas?.drawText(i.toString(),textX,textY,textPaint)
+        val textY = elementHeight.toFloat() + (textPaint.descent() - textPaint.ascent()) / 4
+        val textX = offset + (textPaint.descent() + textPaint.ascent()) * 0.4f
+        canvas?.drawText(i.toString(), textX, textY, textPaint)
     }
 
     protected fun drawLines(canvas: Canvas?) {
+
         if (currentStep == newStep) {
-            linePaint.color = inactiveColor
+            Log.e(TAG, "currentStep = $currentStep")
             for (i in 2..stepsCount) {
+                linePaint.color = inactiveColor
                 if (i <= currentStep)
                     linePaint.color = activeColor
                 drawLine(canvas, i)
             }
         } else {
-            if (currentStep < newStep) {
-                drawDefaultLines(canvas,currentStep)
-
-                drawLineProgress(canvas, currentStep + 1, animationProgressForward)
-                animationProgressForward += animationSpeed
-                if (animationProgressForward > 1.05f) {
-                    currentStep++
-                    animationProgressForward = 0f
-                }
-            } else {
-                drawDefaultLines(canvas,currentStep-1)
-
-                drawLineProgress(canvas, currentStep, animationProgressBackward)
-                Log.e(TAG,"animationProgressBackward = $animationProgressBackward")
-                animationProgressBackward -= animationSpeed
-                if (animationProgressBackward < 0f) {
-                    currentStep--
-                    animationProgressBackward = 1f
+            if (viewPager == null) {
+                if (currentStep < newStep) {
+                    drawDefaultLines(canvas, currentStep)
+                    drawLineProgress(canvas, currentStep + 1, animationProgressForward)
+                    animationProgressForward += animationSpeed
+                    if (animationProgressForward > 1.05f) {
+                        currentStep++
+                        animationProgressForward = 0f
+                    }
+                } else {
+                    drawDefaultLines(canvas, currentStep - 1)
+                    drawLineProgress(canvas, currentStep, animationProgressBackward)
+                    animationProgressBackward -= animationSpeed
+                    if (animationProgressBackward < 0f) {
+                        currentStep--
+                        animationProgressBackward = 1f
+                    }
                 }
             }
 
+        }
+
+        if (viewPagerState == 1) {
+            drawLineProgress(canvas, viewPagerPosition + 1, viewPagerAnimation)
         }
 
         if (currentStep != newStep)
@@ -220,20 +243,21 @@ open class WizardStepView : View {
 
     protected fun drawLine(canvas: Canvas?, i: Int) {
         val startX = screenPart * 2f * (i - 2) + screenPart + cirleRadius * 0.95f
-        val stopX = screenPart * 2f * (i - 1) + screenPart + cirleRadius *0.95f
+        val stopX = screenPart * 2f * (i - 1) + screenPart + cirleRadius * 0.1f
         canvas?.drawLine(startX, elementHeight.toFloat(), stopX, elementHeight.toFloat(), linePaint)
     }
 
     protected fun drawLineProgress(canvas: Canvas?, i: Int, progress: Float) {
+        //Log.e(TAG, "progress $progress , position $i")
         linePaint.color = activeColor
-        val startX = screenPart * 2f * (i - 2) + screenPart + cirleRadius * 0.95f
-        val predictionStopX = (screenPart * 2f * (i - 1) + screenPart + cirleRadius) * progress
+        val startX = screenPart * 2f * (i - 2) + screenPart + cirleRadius
+        val predictionStopX = screenPart * 2f * (i - 1) + screenPart + cirleRadius*0.0f
         val animation = (predictionStopX - startX) * progress
         val stopX = startX + animation
         canvas?.drawLine(startX, elementHeight.toFloat(), stopX, elementHeight.toFloat(), linePaint)
     }
 
-    protected fun drawDefaultLines(canvas: Canvas?, limit:Int) {
+    protected fun drawDefaultLines(canvas: Canvas?, limit: Int) {
         for (i in 2..stepsCount) {
             linePaint.color = inactiveColor
             drawLine(canvas, i)
@@ -270,7 +294,7 @@ open class WizardStepView : View {
         }
         if (clickListener == null) {
             setCurrentPosition(position)
-            viewPager?.setCurrentItem(position-1, true)
+            viewPager?.setCurrentItem(position - 1, true)
         } else {
             clickListener?.click(position)
         }
