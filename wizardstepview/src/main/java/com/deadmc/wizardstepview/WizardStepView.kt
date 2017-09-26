@@ -62,6 +62,7 @@ open class WizardStepView : View {
     //current state
     private var currentStep = 1
     private var newStep = 1
+    private var clickedStep = false
     //animation
     private var animationProgressForward = 0f
     private var animationProgressBackward = 1f
@@ -90,6 +91,7 @@ open class WizardStepView : View {
 
     fun setCurrentPosition(position: Int) {
         newStep = position
+        clickedStep = true
         animationSpeed = 0.05f * Math.abs(currentStep - newStep)
         invalidate()
     }
@@ -102,15 +104,25 @@ open class WizardStepView : View {
             }
 
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-
+                Log.e(TAG, "onPageScrolled $position, viewPagerState $viewPagerState")
                 viewPagerAnimation = positionOffset
                 viewPagerPosition = position + 1
 
                 if (viewPagerState == 1) {
+                    clickedStep = false
                     if (viewPagerPosition < currentStep) {
                         currentStep = viewPagerPosition
                         newStep = viewPagerPosition
                         startedTransition = true
+                    }
+                }
+
+
+
+                if (viewPagerState == 2) {
+                    if (viewPagerPosition > currentStep && !clickedStep) {
+                        currentStep = viewPagerPosition
+                        newStep = currentStep
                     }
                 }
 
@@ -234,7 +246,7 @@ open class WizardStepView : View {
     protected fun drawLines(canvas: Canvas?) {
 
         if (currentStep == newStep) {
-            Log.e(TAG, "currentStep = $currentStep")
+            //Log.e(TAG, "currentStep = $currentStep")
             for (i in 2..stepsCount) {
                 linePaint.color = inactiveColor
                 if (i <= currentStep)
@@ -264,7 +276,7 @@ open class WizardStepView : View {
 
         }
 
-        if (viewPagerState == 1) {
+        if (viewPagerState >= 1) {
             drawLineProgress(canvas, viewPagerPosition + 1, viewPagerAnimation)
         }
 
