@@ -293,8 +293,8 @@ open class WizardStepView : View {
     protected fun drawLineProgress(canvas: Canvas?, i: Int, progress: Float) {
         //Log.e(TAG, "progress $progress , position $i")
         linePaint.color = activeColor
-        val startX = screenPart * 2f * (i - 2) + screenPart + cirleRadius
-        val predictionStopX = screenPart * 2f * (i - 1) + screenPart + cirleRadius*0.0f
+        val startX = screenPart * 1.95f * (i - 2) + screenPart + cirleRadius
+        val predictionStopX = screenPart * 1.95f * (i - 1) + screenPart + cirleRadius*0.0f
         val animation = (predictionStopX - startX) * progress
         val stopX = startX + animation
         canvas?.drawLine(startX, elementHeight.toFloat(), stopX, elementHeight.toFloat(), linePaint)

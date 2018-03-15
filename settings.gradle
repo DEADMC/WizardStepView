@@ -1,1 +1,2 @@
 include ':app', ':wizardstepview'
+rootProject.name = 'artifact'

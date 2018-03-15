@@ -10,7 +10,7 @@
     <com.deadmc.wizardstepview.WizardStepView
         android:id="@+id/wizardStepView"
         android:layout_width="match_parent"
-        android:paddingTop="20dp"
+        app:activeColor="@color/colorPrimary"
         android:layout_height="wrap_content"
     />
 
