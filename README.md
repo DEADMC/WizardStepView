@@ -1,8 +1,8 @@
-#WizardStepView
+# WizardStepView
 
 [![](https://jitpack.io/v/DEADMC/WizardStepView.svg)](https://jitpack.io/#DEADMC/WizardStepView)
 
-##Getting Started
+## Getting Started
 
 Add it in your root build.gradle at the end of repositories:
 
