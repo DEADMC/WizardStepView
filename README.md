@@ -25,3 +25,31 @@ Add the dependency
 	        compile 'com.github.DEADMC:WizardStepView:1.0'
 	}
 ```
+
+## Usage
+
+### Add Layout
+
+```xml
+    <com.deadmc.wizardstepview.WizardStepView
+        android:id="@+id/wizardStepView"
+	android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        app:activeColor="@color/colorPrimary"
+        app:inactiveColor="#8c8c8c"
+        app:cirleRadius="16dp"
+        app:textInactiveColor="#ffffff"
+        app:textActiveColor="#ffffff"
+        />
+```
+
+### Set click listener
+
+```java
+        wizardStepView.setClickListener(new WizardClickListener() {
+            @Override
+            public void click(int position) {
+
+            }
+        });
+```
