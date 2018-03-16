@@ -7,7 +7,7 @@
 Add it in your root build.gradle at the end of repositories:
 
 ```groovy
-allprojects {
+	allprojects {
 		repositories {
 			...
 			maven { url 'https://jitpack.io' }
@@ -17,7 +17,7 @@ allprojects {
 Add the dependency
   
 ```groovy
-dependencies {
-	   compile 'com.github.DEADMC:WizardStepView:1.0'
-}
+	dependencies {
+	        compile 'com.github.DEADMC:WizardStepView:1.0'
+	}
 ```
