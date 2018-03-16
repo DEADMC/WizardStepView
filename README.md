@@ -53,3 +53,19 @@ Add the dependency
             }
         });
 ```
+
+### Additional features:
+You can bind it to ViewPager
+```java
+wizardStepView.setViewPager(viewPager);
+```
+
+Set current position
+```java
+wizardStepView.setViewPagerPosition(3);
+```
+
+Set steps count
+```java
+wizardStepView.setStepsCount(5);
+```
